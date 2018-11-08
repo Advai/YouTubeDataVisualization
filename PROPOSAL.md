@@ -1,6 +1,6 @@
 # Project Proposal
 ## Personal Youtube Data Visualizer
-My project will analyze the usage statistics of a user's Youtube account. The key statistics I want to visualize are 
+My project will analyze the usage statistics of a user's Youtube account. The key statistics I want to visualize are: <nr/>
 **Most watched video of all time**<br/>
 **Rank subscriptions based on most watched**<br/>
 **Most common category of video watched (?)**<br/>
@@ -8,7 +8,7 @@ My project will analyze the usage statistics of a user's Youtube account. The ke
 **Trend of time spent on Youtube**<br/>
 
 
-###Application Breakdown
+### Application Breakdown
 1. Getting the data
     * Theoretically, I will get the data through the [Youtube Reporting API](https://developers.google.com/youtube/reporting/). 
     * Naturally, a user will have to log in to his/her account so I will implement OAuth and create a log-in page for my application. I plan to use this link to [implement OAuth](https://developers.google.com/youtube/v3/guides/authentication#OAuth2_Devices_Flow)
@@ -19,8 +19,14 @@ My project will analyze the usage statistics of a user's Youtube account. The ke
 4. The GUI
     * I would rather sacrifice functionality in my program for cleanliness in my GUI so I will spend a significant amount of time in styling the GUI. Most likely, I will use a Red and White color scheme to match Youtube's. 
 
-###Timeline of the Project
-   
+### Timeline of the Project
+   1. 11/8-11/15
+      1. Read more about Youtube Analytics
+      2. Make mockup of GUI Design
+      3. Finish the timeline
+   2. 11/15 - 11/22
+      
+      
 ***Some useful links***
 [Guide to Youtube Analytics](https://www.singlegrain.com/blog-posts/analytics/complete-guide-to-youtube-analytics/)
 [Didn't have time to parse every link here but there might be something useful](https://github.com/uhub/awesome-cpp)
