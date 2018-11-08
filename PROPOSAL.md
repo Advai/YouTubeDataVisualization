@@ -1,6 +1,6 @@
 # Project Proposal
 ## Personal Youtube Data Visualizer
-My project will analyze the usage statistics of a user's Youtube account. The key statistics I want to visualize are: <nr/>
+My project will analyze the usage statistics of a user's Youtube account. The key statistics I want to visualize are: <br/>
 **Most watched video of all time**<br/>
 **Rank subscriptions based on most watched**<br/>
 **Most common category of video watched (?)**<br/>
