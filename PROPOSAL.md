@@ -28,7 +28,7 @@ My project will analyze the usage statistics of a user's Youtube account. The ke
       
       
 ***Some useful links***
-[Guide to Youtube Analytics](https://www.singlegrain.com/blog-posts/analytics/complete-guide-to-youtube-analytics/)
-[Didn't have time to parse every link here but there might be something useful](https://github.com/uhub/awesome-cpp)
-[Data Model of Youtube Data](https://developers.google.com/youtube/analytics/data_model) 
-[Link to most common problems with Youtube API](https://stackoverflow.com/questions/tagged/youtube-analytics-api?sort=votes&pageSize=50) 
+[Guide to Youtube Analytics](https://www.singlegrain.com/blog-posts/analytics/complete-guide-to-youtube-analytics/)<br/>
+[Didn't have time to parse every link here but there might be something useful](https://github.com/uhub/awesome-cpp) <br/>
+[Data Model of Youtube Data](https://developers.google.com/youtube/analytics/data_model)  <br/>
+[Link to most common problems with Youtube API](https://stackoverflow.com/questions/tagged/youtube-analytics-api?sort=votes&pageSize=50) <br/>
