@@ -27,7 +27,7 @@ My project will analyze the usage statistics of a user's Youtube account. The ke
    2. 11/15 - 11/22
       
       
-***Some useful links*** <br/>
+### Some useful links <br/>
 [Guide to Youtube Analytics](https://www.singlegrain.com/blog-posts/analytics/complete-guide-to-youtube-analytics/)<br/>
 [Didn't have time to parse every link here but there might be something useful](https://github.com/uhub/awesome-cpp) <br/>
 [Data Model of Youtube Data](https://developers.google.com/youtube/analytics/data_model)  <br/>
