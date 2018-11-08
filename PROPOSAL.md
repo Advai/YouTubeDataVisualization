@@ -1,11 +1,11 @@
 # Project Proposal
 ## Personal Youtube Data Visualizer
 My project will analyze the usage statistics of a user's Youtube account. The key statistics I want to visualize are 
-**Most watched video of all time**
-**Rank subscriptions based on most watched**
-**Most common category of video watched (?)**
-**Time spent in days, hours, minutes, and seconds**
-**Trend of time spent on Youtube**
+**Most watched video of all time**<br/>
+**Rank subscriptions based on most watched**<br/>
+**Most common category of video watched (?)**<br/>
+**Time spent in days, hours, minutes, and seconds**<br/>
+**Trend of time spent on Youtube**<br/>
 
 
 ***Application Breakdown***
@@ -20,3 +20,9 @@ My project will analyze the usage statistics of a user's Youtube account. The ke
     * I would rather sacrifice functionality in my program for cleanliness in my GUI so I will spend a significant amount of time in styling the GUI. Most likely, I will use a Red and White color scheme to match Youtube's. 
 
 ***Timeline of the Project***
+   
+***Some useful links***
+[Guide to Youtube Analytics](https://www.singlegrain.com/blog-posts/analytics/complete-guide-to-youtube-analytics/)
+[Didn't have time to parse every link here but there might be something useful](https://github.com/uhub/awesome-cpp)
+[Data Model of Youtube Data](https://developers.google.com/youtube/analytics/data_model) 
+[Link to most common problems with Youtube API](https://stackoverflow.com/questions/tagged/youtube-analytics-api?sort=votes&pageSize=50) 
