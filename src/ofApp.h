@@ -20,6 +20,9 @@ public:
 	ofxDatGuiFolder* subscriptionsFolder;
 	//json subscriber_json;
 	ofxGPlot plot;
+	vector<ofxGPoint> subscriptionViewCount;
+	vector<ofxGPoint> subscriptionSubscriberCount;
+	vector<ofxGPoint> popularity;
 	// vector<ofxGPoint>* points;
 
 	void setup();
@@ -38,5 +41,7 @@ public:
 	void gotMessage(ofMessage msg);
 	void onButtonEvent(ofxDatGuiButtonEvent e);
 	void viewsEvent(ofxDatGuiButtonEvent e);
-
+	void subEvent(ofxDatGuiButtonEvent e);
+	void popularityEvent(ofxDatGuiButtonEvent e);
+	vector<ofxGPoint> normalize(vector<ofxGPoint> vec);
 };

@@ -19,62 +19,84 @@ void ofApp::setup() {
 	header->setWidth(3200, .9);
 	header->setPosition(0, 0);
 	header->setHeight(200);
-	//myScrollView = new ofxDatGuiScrollView("Possible Statistics", 10);
-	//myScrollView->setPosition(0, 200);
-	//myScrollView->setHeight(1600);
-	//myScrollView->add("Liked Videos");
-	//myScrollView->add("Disliked Videos");
+
+
 	subscriptionsFolder = new ofxDatGuiFolder("Subscriptions Based Graphs", ofColor::white);
 	subscriptionsFolder->setWidth(800);
-	subscriptionsFolder->addButton("Views");
-	subscriptionsFolder->addButton("Subscriber Count");
-	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Views")->setWidth(800, 1);
-	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Views")->onButtonEvent(this, &ofApp::viewsEvent);
-	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Subscriber Count")->setWidth(800, 1);
 	subscriptionsFolder->setPosition(0, 200);
 	subscriptionsFolder->expand();
 	subscriptionsFolder->toggle();
+	
+	subscriptionsFolder->addButton("Views");
+	subscriptionsFolder->addButton("Subscriber Count");
+	subscriptionsFolder->addButton("Popularity");
+	
+	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Views")->setWidth(800, 1);
+	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Views")->onButtonEvent(this, &ofApp::viewsEvent);
+	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Popularity")->onButtonEvent(this, &ofApp::popularityEvent);
+	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Popularity")->setWidth(800, 1);
+	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Subscriber Count")->onButtonEvent(this, &ofApp::subEvent);
+	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Subscriber Count")->setWidth(800, 1);
+	
+	
+	
 	button = new ofxDatGuiButton("Log In");
 	button->setPosition(2650, 0);
 	button->setLabelAlignment(ofxDatGuiAlignment::CENTER);
 	button->setHeight(200, 1);
 	button->onButtonEvent(this, &ofApp::onButtonEvent);
-	string::size_type sz;
-	vector<ofxGPoint> points;
+
+
 	std::ifstream i("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\subscription_data.json");
 	json subscriber_json = json::parse(i);
 	i.close();
-	auto views = subscriber_json["items"][0]["viewCount"].dump();
-	auto title = subscriber_json["items"][0]["title"].dump();
-	cout << title + views;
-	cout << subscriber_json["items"][0]["viewCount"].is_string();
-	//cout << subscriber_json["items"][0]["viewCount"] +" " + subscriber_json["items"][0]["title"];
 	for (int i = 0; i < subscriber_json["items"].size(); i++) {
-		//cout << subscriber_json["items"][i]["viewCount"] + " " + subscriber_json["items"][i]["title"];
-		//float var = stof(subscriber_json["items"][i]["viewCount"].dump());
-		points.emplace_back(i, subscriber_json["items"][i]["viewCount"], subscriber_json["items"][i]["title"]);
+		subscriptionSubscriberCount.emplace_back(i, subscriber_json["items"][i]["subscriberCount"], subscriber_json["items"][i]["title"]);
+		subscriptionViewCount.emplace_back(i, subscriber_json["items"][i]["viewCount"], subscriber_json["items"][i]["title"]);
 	}
-	plot.setPoints(points);
+	subscriptionSubscriberCount = normalize(subscriptionSubscriberCount);
+	subscriptionViewCount = normalize(subscriptionViewCount);
 
-	plot.setPos(500, 600);
-	plot.setDim(800, 800);
+	for (int i = 0; i < subscriptionSubscriberCount.size(); i++) {
+		popularity.emplace_back(i, (subscriptionSubscriberCount[i].getY() + subscriptionViewCount[i].getY()) / 2, subscriptionSubscriberCount[i].getLabel());
+	}
+	plot.setPoints(subscriptionSubscriberCount);
+
+	plot.setPos(1000, 250);
+	plot.setDim(1500, 700);
+	plot.setYLim(0, 1);
+	plot.startHistograms(GRAFICA_VERTICAL_HISTOGRAM);
+	plot.setLineColor(ofColor::red);
+	plot.setBgColor(ofColor::gray);
+	plot.getTitle().setFontColor(ofColor::white);
+	plot.getXAxis().getAxisLabel().setFontColor(ofColor::white);
+	plot.getYAxis().getAxisLabel().setFontColor(ofColor::white);
+	plot.setMar(300, 90, 60, 50);
+	plot.setFontSize(30);
+	plot.getHistogram().setFontSize(15);
+	plot.getTitle().setFontSize(25);
 	plot.getTitle().setText("Subscriber Graph by total view count");
 	plot.getTitle().setTextAlignment(GRAFICA_CENTER_ALIGN);
 	plot.getYAxis().setAxisLabelText("Views");
+	plot.getYAxis().setFontSize(12);
+	plot.getXAxis().setFontSize(12);
+	plot.getXAxis().getAxisLabel().setFontSize(18);
+	plot.getYAxis().getAxisLabel().setFontSize(18);
 	plot.getXAxis().setAxisLabelText("Channel");
-	plot.startHistograms(GRAFICA_VERTICAL_HISTOGRAM);
+	plot.getXAxis().getAxisLabel().setOffset(280);
+	plot.getXAxis().setDrawTickLabels(false);
+	
 	plot.getHistogram().setDrawLabels(true);
+	plot.getHistogram().setBgColors({ ofColor(255, 0, 0) });
 	plot.getHistogram().setRotateLabels(true);
-	plot.getHistogram().setBgColors({ ofColor(0, 0, 255, 50), ofColor(0, 0, 255, 100), ofColor(0, 0, 255, 150),
-			ofColor(0, 0, 255, 200) });
+	plot.getHistogram().setBgColors({ ofColor(255, 0, 0, 50), ofColor(255, 0, 0, 100), ofColor(255, 0, 0, 150),
+			ofColor(255, 0, 0, 200) });
 
 }
 
 void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 {
 	if (e.target == button) {
-		//system("python oauthtest.py");
-		//Py_SetProgramName("get data from youtube api");
 		PyObject *obj = Py_BuildValue("s", "C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\oauthtest.py");
 		FILE *file = _Py_fopen_obj(obj, "r+");
 		FILE *file2 = _Py_fopen("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\oauthtest.py", "r+");
@@ -90,23 +112,26 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 	}
 }
 
+void ofApp::popularityEvent(ofxDatGuiButtonEvent e) 
+{
+	plot.setPoints(popularity);
+}
+
 void ofApp::viewsEvent(ofxDatGuiButtonEvent e)
 {
-		/*vector<ofxGPoint> points;
-		std::ifstream i("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\subscription_data.json");
-		json subscriber_json = json::parse(i);
-		i.close();
-		for (int i = 0; i < subscriber_json["items"].size(); i++) {
-			cout << subscriber_json["items"][i]["viewCount"] + " " + subscriber_json["items"][i]["title"];
-			points.emplace_back(i, subscriber_json["items"][i]["viewCount"], subscriber_json["items"][i]["title"]);
-		}
-		plot.setPoints(points);*/
+	plot.setPoints(subscriptionViewCount);
+}
+
+void ofApp::subEvent(ofxDatGuiButtonEvent e) 
+{
+	plot.setPoints(subscriptionSubscriberCount);	
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
 	subscriptionsFolder->update();
 	button->update();
+	header->update();
 }
 
 //--------------------------------------------------------------
@@ -125,6 +150,7 @@ void ofApp::draw() {
 	plot.drawBackground();
 	plot.drawBox();
 	plot.drawYAxis();
+	plot.drawXAxis();
 	plot.drawTitle();
 	plot.drawHistograms();
 	plot.endDraw();
@@ -183,4 +209,24 @@ void ofApp::gotMessage(ofMessage msg) {
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo) {
 
+}
+
+vector<ofxGPoint> ofApp::normalize(vector<ofxGPoint> vec) 
+{
+	float min, max;
+	min = vec[0].getY();
+	max = vec[0].getY();
+	for (int i = 0; i < vec.size(); i++) {
+		if (vec[i].getY() > max) {
+			max = vec[i].getY();
+		}
+		if (vec[i].getY() < min) {
+			min = vec[i].getY();
+		}
+	}
+	for (int i = 0; i < vec.size(); i++) {
+		vec[i].setY((vec[i].getY() - min) / (max - min));
+	}
+
+	return vec;
 }
