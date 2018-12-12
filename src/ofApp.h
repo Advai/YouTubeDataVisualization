@@ -10,6 +10,8 @@ using json = nlohmann::json;
 
 class ofApp : public ofBaseApp {
 
+private:
+	bool loggedIn = false;
 public:
 	ofxLabel *label;
 	ofxDatGuiLabel* header;
@@ -18,11 +20,15 @@ public:
 	ofTrueTypeFont *myfont;
 	ofxDatGuiScrollView* myScrollView;
 	ofxDatGuiFolder* subscriptionsFolder;
+	ofxDatGuiFolder* videosFolder;
 	//json subscriber_json;
 	ofxGPlot plot;
 	vector<ofxGPoint> subscriptionViewCount;
 	vector<ofxGPoint> subscriptionSubscriberCount;
 	vector<ofxGPoint> popularity;
+	vector<ofxGPoint> likedVideoViewCount;
+	vector<ofxGPoint> likedVideoLikeCount;
+	vector<ofxGPoint> likedVideoTopics;
 	// vector<ofxGPoint>* points;
 
 	void setup();
@@ -40,8 +46,11 @@ public:
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
 	void onButtonEvent(ofxDatGuiButtonEvent e);
-	void viewsEvent(ofxDatGuiButtonEvent e);
+	void subscriberViewsEvent(ofxDatGuiButtonEvent e);
 	void subEvent(ofxDatGuiButtonEvent e);
-	void popularityEvent(ofxDatGuiButtonEvent e);
+	void subscriberPopularityEvent(ofxDatGuiButtonEvent e);
+	void videoViewsEvent(ofxDatGuiButtonEvent e);
+	void videoLikesEvent(ofxDatGuiButtonEvent e);
+	void videoTopicsEvent(ofxDatGuiButtonEvent e);
 	vector<ofxGPoint> normalize(vector<ofxGPoint> vec);
 };

@@ -11,6 +11,7 @@ void ofApp::setup() {
 
 	myfont->load(OF_TTF_SANS, 32);
 	ofxDatGui* gui = new ofxDatGui(3200, 1800);
+	ofSetBackgroundColor(ofColor::white);
 	// add some components //
 	header = new ofxDatGuiLabel("Youtube Data Visualizer");
 	header->setBackgroundColor(ofColor::red);
@@ -24,47 +25,67 @@ void ofApp::setup() {
 	subscriptionsFolder = new ofxDatGuiFolder("Subscriptions Based Graphs", ofColor::white);
 	subscriptionsFolder->setWidth(800);
 	subscriptionsFolder->setPosition(0, 200);
-	subscriptionsFolder->expand();
-	subscriptionsFolder->toggle();
 	
 	subscriptionsFolder->addButton("Views");
 	subscriptionsFolder->addButton("Subscriber Count");
 	subscriptionsFolder->addButton("Popularity");
 	
 	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Views")->setWidth(800, 1);
-	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Views")->onButtonEvent(this, &ofApp::viewsEvent);
-	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Popularity")->onButtonEvent(this, &ofApp::popularityEvent);
+	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Views")->onButtonEvent(this, &ofApp::subscriberViewsEvent);
+	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Popularity")->onButtonEvent(this, &ofApp::subscriberPopularityEvent);
 	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Popularity")->setWidth(800, 1);
 	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Subscriber Count")->onButtonEvent(this, &ofApp::subEvent);
 	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Subscriber Count")->setWidth(800, 1);
 	
+	subscriptionsFolder->toggle();
+	subscriptionsFolder->expand();
 	
+	
+	videosFolder = new ofxDatGuiFolder("Liked Videos Based Graphs", ofColor::white);
+	videosFolder->setWidth(800);
+	videosFolder->setPosition(0, 500);
+	videosFolder->expand();
+	videosFolder->toggle();
+
+	videosFolder->addButton("Views");
+	videosFolder->addButton("Likes");
+	videosFolder->addButton("Categories");
+	
+	videosFolder->getComponent(ofxDatGuiType::BUTTON, "Views")->setWidth(800, 1);
+	videosFolder->getComponent(ofxDatGuiType::BUTTON, "Views")->onButtonEvent(this, &ofApp::videoViewsEvent);
+
+	videosFolder->getComponent(ofxDatGuiType::BUTTON, "Likes")->setWidth(800, 1);
+	videosFolder->getComponent(ofxDatGuiType::BUTTON, "Likes")->onButtonEvent(this, &ofApp::videoLikesEvent);
+	
+	videosFolder->getComponent(ofxDatGuiType::BUTTON, "Categories")->setWidth(800, 1);
+	videosFolder->getComponent(ofxDatGuiType::BUTTON, "Categories")->onButtonEvent(this, &ofApp::videoTopicsEvent);
 	
 	button = new ofxDatGuiButton("Log In");
-	button->setPosition(2650, 0);
+	button->setPosition(2850, 65);
 	button->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-	button->setHeight(200, 1);
+	button->setHeight(75, 1);
+	button->setWidth(400, 1);
 	button->onButtonEvent(this, &ofApp::onButtonEvent);
 
 
-	std::ifstream i("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\subscription_data.json");
-	json subscriber_json = json::parse(i);
-	i.close();
-	for (int i = 0; i < subscriber_json["items"].size(); i++) {
-		subscriptionSubscriberCount.emplace_back(i, subscriber_json["items"][i]["subscriberCount"], subscriber_json["items"][i]["title"]);
-		subscriptionViewCount.emplace_back(i, subscriber_json["items"][i]["viewCount"], subscriber_json["items"][i]["title"]);
-	}
-	subscriptionSubscriberCount = normalize(subscriptionSubscriberCount);
-	subscriptionViewCount = normalize(subscriptionViewCount);
+	//std::ifstream i("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\subscription_data.json");
+	//json subscriber_json = json::parse(i);
+	//i.close();
+	//for (int i = 0; i < subscriber_json["items"].size(); i++) {
+	//	subscriptionSubscriberCount.emplace_back(i, subscriber_json["items"][i]["subscriberCount"], subscriber_json["items"][i]["title"]);
+	//	subscriptionViewCount.emplace_back(i, subscriber_json["items"][i]["viewCount"], subscriber_json["items"][i]["title"]);
+	//}
+	//subscriptionSubscriberCount = normalize(subscriptionSubscriberCount);
+	//subscriptionViewCount = normalize(subscriptionViewCount);
 
-	for (int i = 0; i < subscriptionSubscriberCount.size(); i++) {
-		popularity.emplace_back(i, (subscriptionSubscriberCount[i].getY() + subscriptionViewCount[i].getY()) / 2, subscriptionSubscriberCount[i].getLabel());
-	}
-	plot.setPoints(subscriptionSubscriberCount);
+	//for (int i = 0; i < subscriptionSubscriberCount.size(); i++) {
+	//	popularity.emplace_back(i, (subscriptionSubscriberCount[i].getY() + subscriptionViewCount[i].getY()) / 2, subscriptionSubscriberCount[i].getLabel());
+	//}
+	//plot.setPoints(subscriptionSubscriberCount);
 
 	plot.setPos(1000, 250);
 	plot.setDim(1500, 700);
-	plot.setYLim(0, 1);
+	//plot.setYLim(0, 1);
 	plot.startHistograms(GRAFICA_VERTICAL_HISTOGRAM);
 	plot.setLineColor(ofColor::red);
 	plot.setBgColor(ofColor::gray);
@@ -78,11 +99,11 @@ void ofApp::setup() {
 	plot.getTitle().setText("Subscriber Graph by total view count");
 	plot.getTitle().setTextAlignment(GRAFICA_CENTER_ALIGN);
 	plot.getYAxis().setAxisLabelText("Views");
+	plot.getXAxis().setAxisLabelText("Channel");
 	plot.getYAxis().setFontSize(12);
 	plot.getXAxis().setFontSize(12);
 	plot.getXAxis().getAxisLabel().setFontSize(18);
 	plot.getYAxis().getAxisLabel().setFontSize(18);
-	plot.getXAxis().setAxisLabelText("Channel");
 	plot.getXAxis().getAxisLabel().setOffset(280);
 	plot.getXAxis().setDrawTickLabels(false);
 	
@@ -102,6 +123,51 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 		FILE *file2 = _Py_fopen("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\oauthtest.py", "r+");
 		PyRun_SimpleFile(file2, "C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\oauthtest.py");
 		button->setLabel("LOGGED IN!");
+		loggedIn = true;
+
+		std::ifstream i("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\subscription_data.json");
+		json subscriber_json = json::parse(i);
+		i.close();
+		for (int i = 0; i < subscriber_json["items"].size(); i++) {
+			subscriptionSubscriberCount.emplace_back(i, subscriber_json["items"][i]["subscriberCount"], subscriber_json["items"][i]["title"]);
+			subscriptionViewCount.emplace_back(i, subscriber_json["items"][i]["viewCount"], subscriber_json["items"][i]["title"]);
+		}
+		subscriptionSubscriberCount = normalize(subscriptionSubscriberCount);
+		subscriptionViewCount = normalize(subscriptionViewCount);
+
+		for (int i = 0; i < subscriptionSubscriberCount.size(); i++) {
+			popularity.emplace_back(i, (subscriptionSubscriberCount[i].getY() + subscriptionViewCount[i].getY()) / 2, subscriptionSubscriberCount[i].getLabel());
+		}
+		popularity = normalize(popularity);
+
+		std::ifstream categories_stream("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\video_categories.json");
+		json vidCategories = json::parse(categories_stream);
+		categories_stream.close();
+		map<string, int> categoryCount;
+		for (int i = 0; i < vidCategories["items"].size(); i++) {
+			categoryCount.emplace(vidCategories["items"][i], 0);
+		}
+
+		std::ifstream j("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\liked_video_data.json");
+		json liked_video_json = json::parse(j);
+		j.close();
+		for (int i = 0; i < liked_video_json["items"].size(); i++) {
+			likedVideoLikeCount.emplace_back(i, liked_video_json["items"][i]["likeCount"], liked_video_json["items"][i]["title"]);
+			likedVideoViewCount.emplace_back(i, liked_video_json["items"][i]["viewCount"], liked_video_json["items"][i]["title"]);
+			categoryCount[liked_video_json["items"][i]["category"]]++;
+		}
+		int count = 0;
+		for (const auto &pair : categoryCount) {
+			likedVideoTopics.emplace_back(count, pair.second, pair.first);
+			count++;
+		}
+		likedVideoViewCount = normalize(likedVideoViewCount);
+		likedVideoLikeCount = normalize(likedVideoLikeCount);
+		
+		
+
+		//plot.setPoints(subscriptionSubscriberCount);
+
 		/*std::ifstream i("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\subscription_data.json");
 		subscriber_json = json::parse(i);
 		for (int i = 0; i < subscriber_json["items"].size(); i++) {
@@ -112,24 +178,58 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 	}
 }
 
-void ofApp::popularityEvent(ofxDatGuiButtonEvent e) 
+void ofApp::videoViewsEvent(ofxDatGuiButtonEvent e)
 {
+	plot.getTitle().setText("View Comparison of your Liked Videos");
+	plot.getYAxis().setAxisLabelText("Views");
+	plot.getXAxis().setAxisLabelText("Video");
+	plot.setPoints(likedVideoViewCount);
+}
+
+void ofApp::videoTopicsEvent(ofxDatGuiButtonEvent e) 
+{
+	plot.getTitle().setText("Category Spread of your Liked Videos");
+	plot.getYAxis().setAxisLabelText("Number of videos");
+	plot.getXAxis().setAxisLabelText("Category");
+	plot.setPoints(likedVideoTopics);
+}
+
+void ofApp::videoLikesEvent(ofxDatGuiButtonEvent e)
+{
+	plot.getTitle().setText("Likes Comparison of your Liked Videos");
+	plot.getYAxis().setAxisLabelText("Likes");
+	plot.getXAxis().setAxisLabelText("Video");
+	plot.setPoints(likedVideoLikeCount);
+}
+
+void ofApp::subscriberPopularityEvent(ofxDatGuiButtonEvent e) 
+{
+	plot.getTitle().setText("Popularity Comparison of your Subscriptions");
+	plot.getYAxis().setAxisLabelText("Popularity");
+	plot.getXAxis().setAxisLabelText("Channel");
 	plot.setPoints(popularity);
 }
 
-void ofApp::viewsEvent(ofxDatGuiButtonEvent e)
+void ofApp::subscriberViewsEvent(ofxDatGuiButtonEvent e)
 {
+	plot.getTitle().setText("View Count Comparison of your Subscriptions");
+	plot.getYAxis().setAxisLabelText("Views");
+	plot.getXAxis().setAxisLabelText("Channel");
 	plot.setPoints(subscriptionViewCount);
 }
 
 void ofApp::subEvent(ofxDatGuiButtonEvent e) 
 {
+	plot.getTitle().setText("Subscriber Count Comparison of your Subscriptions");
+	plot.getYAxis().setAxisLabelText("Subscribers");
+	plot.getXAxis().setAxisLabelText("Channel");
 	plot.setPoints(subscriptionSubscriberCount);	
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
 	subscriptionsFolder->update();
+	videosFolder->update();
 	button->update();
 	header->update();
 }
@@ -146,6 +246,7 @@ void ofApp::draw() {
 	button->draw();
 	//label->draw();
 	subscriptionsFolder->draw();
+	videosFolder->draw();
 	plot.beginDraw();
 	plot.drawBackground();
 	plot.drawBox();
