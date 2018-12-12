@@ -29,14 +29,24 @@ void ofApp::setup() {
 	subscriptionsFolder->addButton("Views");
 	subscriptionsFolder->addButton("Subscriber Count");
 	subscriptionsFolder->addButton("Popularity");
-	
+	subscriptionsFolder->addButton("Topics");
+
 	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Views")->setWidth(800, 1);
+	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Views")->setLabelAlignment(ofxDatGuiAlignment::CENTER);
 	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Views")->onButtonEvent(this, &ofApp::subscriberViewsEvent);
+	
 	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Popularity")->onButtonEvent(this, &ofApp::subscriberPopularityEvent);
 	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Popularity")->setWidth(800, 1);
+	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Popularity")->setLabelAlignment(ofxDatGuiAlignment::CENTER);
+	
 	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Subscriber Count")->onButtonEvent(this, &ofApp::subEvent);
 	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Subscriber Count")->setWidth(800, 1);
-	
+	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Subscriber Count")->setLabelAlignment(ofxDatGuiAlignment::CENTER);
+
+	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Topics")->onButtonEvent(this, &ofApp::subscriptionTopicEvent);
+	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Topics")->setWidth(800, 1);
+	subscriptionsFolder->getComponent(ofxDatGuiType::BUTTON, "Topics")->setLabelAlignment(ofxDatGuiAlignment::CENTER);
+
 	subscriptionsFolder->toggle();
 	subscriptionsFolder->expand();
 	
@@ -44,8 +54,6 @@ void ofApp::setup() {
 	videosFolder = new ofxDatGuiFolder("Liked Videos Based Graphs", ofColor::white);
 	videosFolder->setWidth(800);
 	videosFolder->setPosition(0, 500);
-	videosFolder->expand();
-	videosFolder->toggle();
 
 	videosFolder->addButton("Views");
 	videosFolder->addButton("Likes");
@@ -60,6 +68,9 @@ void ofApp::setup() {
 	videosFolder->getComponent(ofxDatGuiType::BUTTON, "Categories")->setWidth(800, 1);
 	videosFolder->getComponent(ofxDatGuiType::BUTTON, "Categories")->onButtonEvent(this, &ofApp::videoTopicsEvent);
 	
+	videosFolder->toggle();
+	videosFolder->expand();
+
 	button = new ofxDatGuiButton("Log In");
 	button->setPosition(2850, 65);
 	button->setLabelAlignment(ofxDatGuiAlignment::CENTER);
@@ -68,24 +79,9 @@ void ofApp::setup() {
 	button->onButtonEvent(this, &ofApp::onButtonEvent);
 
 
-	//std::ifstream i("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\subscription_data.json");
-	//json subscriber_json = json::parse(i);
-	//i.close();
-	//for (int i = 0; i < subscriber_json["items"].size(); i++) {
-	//	subscriptionSubscriberCount.emplace_back(i, subscriber_json["items"][i]["subscriberCount"], subscriber_json["items"][i]["title"]);
-	//	subscriptionViewCount.emplace_back(i, subscriber_json["items"][i]["viewCount"], subscriber_json["items"][i]["title"]);
-	//}
-	//subscriptionSubscriberCount = normalize(subscriptionSubscriberCount);
-	//subscriptionViewCount = normalize(subscriptionViewCount);
-
-	//for (int i = 0; i < subscriptionSubscriberCount.size(); i++) {
-	//	popularity.emplace_back(i, (subscriptionSubscriberCount[i].getY() + subscriptionViewCount[i].getY()) / 2, subscriptionSubscriberCount[i].getLabel());
-	//}
-	//plot.setPoints(subscriptionSubscriberCount);
 
 	plot.setPos(1000, 250);
 	plot.setDim(1500, 700);
-	//plot.setYLim(0, 1);
 	plot.startHistograms(GRAFICA_VERTICAL_HISTOGRAM);
 	plot.setLineColor(ofColor::red);
 	plot.setBgColor(ofColor::gray);
@@ -104,7 +100,7 @@ void ofApp::setup() {
 	plot.getXAxis().setFontSize(12);
 	plot.getXAxis().getAxisLabel().setFontSize(18);
 	plot.getYAxis().getAxisLabel().setFontSize(18);
-	plot.getXAxis().getAxisLabel().setOffset(280);
+	plot.getXAxis().getAxisLabel().setOffset(680);
 	plot.getXAxis().setDrawTickLabels(false);
 	
 	plot.getHistogram().setDrawLabels(true);
@@ -125,12 +121,28 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 		button->setLabel("LOGGED IN!");
 		loggedIn = true;
 
+		std::ifstream topicIdStream("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\topic_ids.json");
+		json topicIds = json::parse(topicIdStream);
+		topicIdStream.close();
+		map<string, int> topicCount;
+		for (int i = 0; i < topicIds["items"].size(); i++) {
+			topicCount.emplace(topicIds["items"][i], 0);
+		}
+
 		std::ifstream i("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\subscription_data.json");
 		json subscriber_json = json::parse(i);
 		i.close();
 		for (int i = 0; i < subscriber_json["items"].size(); i++) {
 			subscriptionSubscriberCount.emplace_back(i, subscriber_json["items"][i]["subscriberCount"], subscriber_json["items"][i]["title"]);
 			subscriptionViewCount.emplace_back(i, subscriber_json["items"][i]["viewCount"], subscriber_json["items"][i]["title"]);
+			for (int j = 0; j < subscriber_json["items"][i]["topicIds"].size(); j++) {
+				topicCount[subscriber_json["items"][i]["topicIds"][j]]++;
+			}
+		}
+		int count2 = 0;
+		for (const auto &pair : topicCount) {
+			subscriptionTopicsCount.emplace_back(count2, pair.second, pair.first);
+			count2++;
 		}
 		subscriptionSubscriberCount = normalize(subscriptionSubscriberCount);
 		subscriptionViewCount = normalize(subscriptionViewCount);
@@ -139,6 +151,7 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 			popularity.emplace_back(i, (subscriptionSubscriberCount[i].getY() + subscriptionViewCount[i].getY()) / 2, subscriptionSubscriberCount[i].getLabel());
 		}
 		popularity = normalize(popularity);
+
 
 		std::ifstream categories_stream("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\video_categories.json");
 		json vidCategories = json::parse(categories_stream);
@@ -183,6 +196,7 @@ void ofApp::videoViewsEvent(ofxDatGuiButtonEvent e)
 	plot.getTitle().setText("View Comparison of your Liked Videos");
 	plot.getYAxis().setAxisLabelText("Views");
 	plot.getXAxis().setAxisLabelText("Video");
+	plot.setMar(500, 90, 60, 50);
 	plot.setPoints(likedVideoViewCount);
 }
 
@@ -205,6 +219,7 @@ void ofApp::videoLikesEvent(ofxDatGuiButtonEvent e)
 void ofApp::subscriberPopularityEvent(ofxDatGuiButtonEvent e) 
 {
 	plot.getTitle().setText("Popularity Comparison of your Subscriptions");
+	plot.setYLim(0, .9);
 	plot.getYAxis().setAxisLabelText("Popularity");
 	plot.getXAxis().setAxisLabelText("Channel");
 	plot.setPoints(popularity);
@@ -213,6 +228,7 @@ void ofApp::subscriberPopularityEvent(ofxDatGuiButtonEvent e)
 void ofApp::subscriberViewsEvent(ofxDatGuiButtonEvent e)
 {
 	plot.getTitle().setText("View Count Comparison of your Subscriptions");
+	plot.setYLim(0, .9);
 	plot.getYAxis().setAxisLabelText("Views");
 	plot.getXAxis().setAxisLabelText("Channel");
 	plot.setPoints(subscriptionViewCount);
@@ -221,9 +237,18 @@ void ofApp::subscriberViewsEvent(ofxDatGuiButtonEvent e)
 void ofApp::subEvent(ofxDatGuiButtonEvent e) 
 {
 	plot.getTitle().setText("Subscriber Count Comparison of your Subscriptions");
+	plot.setYLim(0, .9);
 	plot.getYAxis().setAxisLabelText("Subscribers");
 	plot.getXAxis().setAxisLabelText("Channel");
-	plot.setPoints(subscriptionSubscriberCount);	
+	plot.setPoints(subscriptionSubscriberCount);
+}
+
+void ofApp::subscriptionTopicEvent(ofxDatGuiButtonEvent e)
+{
+	plot.getTitle().setText("Topic Spread of your Subscriptions");
+	plot.getYAxis().setAxisLabelText("Number of channels");
+	plot.getXAxis().setAxisLabelText("Topic");
+	plot.setPoints(subscriptionTopicsCount);
 }
 
 //--------------------------------------------------------------

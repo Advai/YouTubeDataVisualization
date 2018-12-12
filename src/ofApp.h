@@ -29,6 +29,7 @@ public:
 	vector<ofxGPoint> likedVideoViewCount;
 	vector<ofxGPoint> likedVideoLikeCount;
 	vector<ofxGPoint> likedVideoTopics;
+	vector<ofxGPoint> subscriptionTopicsCount;
 	// vector<ofxGPoint>* points;
 
 	void setup();
@@ -52,5 +53,6 @@ public:
 	void videoViewsEvent(ofxDatGuiButtonEvent e);
 	void videoLikesEvent(ofxDatGuiButtonEvent e);
 	void videoTopicsEvent(ofxDatGuiButtonEvent e);
+	void subscriptionTopicEvent(ofxDatGuiButtonEvent e);
 	vector<ofxGPoint> normalize(vector<ofxGPoint> vec);
 };
