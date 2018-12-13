@@ -1,6 +1,6 @@
 # Setup
   1. Download the repository 
-    i. NOTE: do not use the ofxDatGui online. I have made changes to it for this specific project and it will not compile with any other version. 
+    1. NOTE: do not use the ofxDatGui online. I have made changes to it for this specific project and it will not compile with any other version. 
   2. Go to your addons folder in openframeworks and paste the folders inside this repository's addons folder
   3. add the ofxbraitsch folder in to the bin/data folder of your project and add the json.hpp file to your src directory
   4. replace the ofApp.h and ofApp.cpp that was generated with the respective files in this repository
