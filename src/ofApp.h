@@ -13,8 +13,10 @@ class ofApp : public ofBaseApp {
 private:
 	bool loggedIn = false;
 public:
-	ofxLabel *label;
+	ofxTextField* text;
+	ofxDatGuiLabel* circle;
 	ofxDatGuiLabel* header;
+	ofxDatGuiLabel* graphDescription;
 	ofxDatGuiButton* button;
 	ofxDatGui* gui;
 	ofTrueTypeFont *myfont;
