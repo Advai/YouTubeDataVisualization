@@ -7,4 +7,11 @@
   6. Set the Python path variable. Go to Project -> Options -> C/C++ -> General -> Additional Include Directories and add the path to your Python include folder and the libs folder. Do the same thing in the Project -> Options -> Linker -> General -> Additional Library Directories
   7. Go into the client_secret.json and update it with your project specific API keys and credentials.  
   
+  # Features
+  Once you log into your Google account:
+    * Compare how many views, likes, and topics your liked videos range from 
+    * Compare views, subscribers and categories of your subscriptions
+    * Works with any Google account
+    
+  
   
