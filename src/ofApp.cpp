@@ -6,19 +6,27 @@
 using json = nlohmann::json;
 
 //--------------------------------------------------------------
+/*
+	sets the default values for all gui elements
+*/
 void ofApp::setup() {
 	myfont = new ofTrueTypeFont();
-	circle = new ofxDatGuiLabel("TEST");
 	myfont->load(OF_TTF_SANS, 32);
-	ofxDatGui* gui = new ofxDatGui(3200, 1800);
 	ofSetBackgroundColor(ofColor::white);
-	header = new ofxDatGuiLabel("Youtube Data Visualizer");
-	header->setBackgroundColor(ofColor::red);
-	header->setLabelColor(ofColor::white);
-	header->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-	header->setWidth(3200, .9);
-	header->setPosition(0, 0);
-	header->setHeight(200);
+	
+	setupHeader();
+	setupButton();
+	setupSubscriptionFolder();
+	setupVideoFolder();
+	setupGraphDescription();
+	setupPlot();
+}
+
+/*
+	sets default values for the graph description label
+*/
+void ofApp::setupGraphDescription() 
+{
 	graphDescription = new ofxDatGuiLabel("Click on a graph option for a description of the graph");
 	graphDescription->setPosition(750, 1425);
 	graphDescription->setWidth(2000, 1);
@@ -26,8 +34,26 @@ void ofApp::setup() {
 	graphDescription->setLabelAlignment(ofxDatGuiAlignment::CENTER);
 	graphDescription->setBackgroundColor(ofColor::red);
 	graphDescription->setLabelColor(ofColor::white);
+}
+/*
+	sets up default values for header label
+*/
+void ofApp::setupHeader() 
+{
+	header = new ofxDatGuiLabel("Youtube Data Visualizer");
+	header->setBackgroundColor(ofColor::red);
+	header->setLabelColor(ofColor::white);
+	header->setLabelAlignment(ofxDatGuiAlignment::CENTER);
+	header->setWidth(3200, .9);
+	header->setPosition(0, 0);
+	header->setHeight(200);
+}
 
-
+/*
+	creates folder for subscription based graphs, adds buttons, and sets default values
+*/
+void ofApp::setupSubscriptionFolder() 
+{
 	subscriptionsFolder = new ofxDatGuiFolder("Subscriptions Based Graphs", ofColor::white);
 	subscriptionsFolder->setWidth(800);
 	subscriptionsFolder->setPosition(0, 250);
@@ -55,8 +81,13 @@ void ofApp::setup() {
 
 	subscriptionsFolder->toggle();
 	subscriptionsFolder->expand();
+}
 
-
+/*
+	creates folder for video based graphs, adds buttons, and sets default values
+*/
+void ofApp::setupVideoFolder() 
+{
 	videosFolder = new ofxDatGuiFolder("Liked Videos Based Graphs", ofColor::white);
 	videosFolder->setWidth(800);
 	videosFolder->setPosition(0, 550);
@@ -79,16 +110,26 @@ void ofApp::setup() {
 
 	videosFolder->toggle();
 	videosFolder->expand();
+}
 
+/*
+	sets default values for log in button
+*/
+void ofApp::setupButton() 
+{
 	button = new ofxDatGuiButton("Log In");
 	button->setPosition(2850, 65);
 	button->setLabelAlignment(ofxDatGuiAlignment::CENTER);
 	button->setHeight(75, 1);
 	button->setWidth(400, 1);
 	button->onButtonEvent(this, &ofApp::onButtonEvent);
+}
 
-
-
+/*
+	creates plot and sets default values for axes, title, and colors
+*/
+void ofApp::setupPlot() 
+{
 	plot.setPos(900, 200);
 	plot.setDim(1500, 650);
 	plot.startHistograms(GRAFICA_VERTICAL_HISTOGRAM);
@@ -117,77 +158,119 @@ void ofApp::setup() {
 	plot.getHistogram().setRotateLabels(true);
 	plot.getHistogram().setBgColors({ ofColor(255, 0, 0, 50), ofColor(255, 0, 0, 100), ofColor(255, 0, 0, 150),
 			ofColor(255, 0, 0, 200) });
-
 }
 
+/*
+	opens json file with youtube data and reads specific data feature into ofxGPoint vector and then normalizes it
+*/
+vector<ofxGPoint> ofApp::getData(string path, int flag)
+{
+	vector<ofxGPoint> toReturn;
+	ifstream stream(path);
+	json data = json::parse(stream);
+	stream.close();
+	
+
+
+	string data_type;
+	
+	if (flag == 1) {
+		data_type = "subscriberCount";
+	}
+	else if (flag == 0) {
+		data_type = "viewCount";
+	}
+	else {
+		data_type = "likeCount";
+	}
+
+	for (int i = 0; i < data["items"].size(); i++) {
+		toReturn.emplace_back(i, data["items"][i][data_type], data["items"][i]["title"]);
+	}
+
+	return normalize(toReturn);
+}
+/*
+	reads topic ids / category ids from json file and counts occurrence of each topic/category in the retrieved youtube json data
+*/
+vector<ofxGPoint> ofApp::getTopicIds(string topicIdsPath, string dataPath, int flag) 
+{
+	vector<ofxGPoint> toReturn;
+	
+	std::ifstream topicIdStream(topicIdsPath);
+	json topicIds = json::parse(topicIdStream);
+	topicIdStream.close();
+
+	map<string, int> topicCount;
+
+	for (int i = 0; i < topicIds["items"].size(); i++) {
+		topicCount.emplace(topicIds["items"][i], 0);
+	}
+
+	std::ifstream dataStream(dataPath);
+	json data = json::parse(dataStream);
+	dataStream.close();
+
+
+	string data_field;
+	
+	if (flag == 1) {
+		data_field = "topicIds";
+		for (int i = 0; i < data["items"].size(); i++) {
+
+			for (int j = 0; j < data["items"][i][data_field].size(); j++) {
+				topicCount[data["items"][i][data_field][j]]++;
+			}
+		}
+	}
+	else {
+		data_field = "category";
+		for (int i = 0; i < data["items"].size(); i++) {
+			topicCount[data["items"][i][data_field]]++;
+		}
+	}
+
+	int count2 = 0;
+	
+	for (const auto &pair : topicCount) {
+		toReturn.emplace_back(count2, pair.second, pair.first);
+		count2++;
+	}
+
+	return toReturn;
+}
+
+/*
+	evaluates python script to retrieve data, then sets vectors of ofxGPoints to be able to populate its respective graph on button click
+*/
 void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 {
 	if (e.target == button) {
-		PyObject *obj = Py_BuildValue("s", "C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\oauthtest.py");
+		// calls python script using C++ python library
+		PyObject *obj = Py_BuildValue("s", python_script_path);
 		FILE *file = _Py_fopen_obj(obj, "r+");
-		FILE *file2 = _Py_fopen("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\oauthtest.py", "r+");
-		PyRun_SimpleFile(file2, "C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\oauthtest.py");
-		button->setLabel("LOGGED IN!");
-		loggedIn = true;
-
-		std::ifstream topicIdStream("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\topic_ids.json");
-		json topicIds = json::parse(topicIdStream);
-		topicIdStream.close();
-		map<string, int> topicCount;
-		for (int i = 0; i < topicIds["items"].size(); i++) {
-			topicCount.emplace(topicIds["items"][i], 0);
-		}
-
-		std::ifstream i("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\subscription_data.json");
-		json subscriber_json = json::parse(i);
-		i.close();
-		for (int i = 0; i < subscriber_json["items"].size(); i++) {
-			subscriptionSubscriberCount.emplace_back(i, subscriber_json["items"][i]["subscriberCount"], subscriber_json["items"][i]["title"]);
-			subscriptionViewCount.emplace_back(i, subscriber_json["items"][i]["viewCount"], subscriber_json["items"][i]["title"]);
-			for (int j = 0; j < subscriber_json["items"][i]["topicIds"].size(); j++) {
-				topicCount[subscriber_json["items"][i]["topicIds"][j]]++;
-			}
-		}
-		int count2 = 0;
-		for (const auto &pair : topicCount) {
-			subscriptionTopicsCount.emplace_back(count2, pair.second, pair.first);
-			count2++;
-		}
-		subscriptionSubscriberCount = normalize(subscriptionSubscriberCount);
-		subscriptionViewCount = normalize(subscriptionViewCount);
-
+		FILE *file2 = _Py_fopen(python_script_path.c_str(), "r+");
+		PyRun_SimpleFile(file2, python_script_path.c_str());
+		button->setLabel("Logged In");
+		button->setBackgroundColor(ofColor(100, 100, 100, 100));
+		
+		subscriptionSubscriberCount = getData(subscription_data_path, 1);
+		subscriptionViewCount = getData(subscription_data_path, 0);
+		subscriptionTopicsCount = getTopicIds(subscription_topics_path, subscription_data_path, 1);
+		
 		for (int i = 0; i < subscriptionSubscriberCount.size(); i++) {
 			popularity.emplace_back(i, (subscriptionSubscriberCount[i].getY() + subscriptionViewCount[i].getY()) / 2, subscriptionSubscriberCount[i].getLabel());
 		}
 		popularity = normalize(popularity);
-
-
-		std::ifstream categories_stream("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\video_categories.json");
-		json vidCategories = json::parse(categories_stream);
-		categories_stream.close();
-		map<string, int> categoryCount;
-		for (int i = 0; i < vidCategories["items"].size(); i++) {
-			categoryCount.emplace(vidCategories["items"][i], 0);
-		}
-
-		std::ifstream j("C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\liked_video_data.json");
-		json liked_video_json = json::parse(j);
-		j.close();
-		for (int i = 0; i < liked_video_json["items"].size(); i++) {
-			likedVideoLikeCount.emplace_back(i, liked_video_json["items"][i]["likeCount"], liked_video_json["items"][i]["title"]);
-			likedVideoViewCount.emplace_back(i, liked_video_json["items"][i]["viewCount"], liked_video_json["items"][i]["title"]);
-			categoryCount[liked_video_json["items"][i]["category"]]++;
-		}
-		int count = 0;
-		for (const auto &pair : categoryCount) {
-			likedVideoTopics.emplace_back(count, pair.second, pair.first);
-			count++;
-		}
-		likedVideoViewCount = normalize(likedVideoViewCount);
-		likedVideoLikeCount = normalize(likedVideoLikeCount);
+		
+		likedVideoLikeCount = getData(video_data_path, 2);
+		likedVideoViewCount = getData(video_data_path, 0);
+		likedVideoTopics = getTopicIds(video_categories_path, video_data_path, 0);
 	}
 }
-
+/*
+	shows video total views graph and scales graph to accommodate for video title size as well as changes graph description
+*/
 void ofApp::videoViewsEvent(ofxDatGuiButtonEvent e)
 {
 	plot.getTitle().setText("View Comparison of your Liked Videos");
@@ -199,6 +282,9 @@ void ofApp::videoViewsEvent(ofxDatGuiButtonEvent e)
 	graphDescription->setLabel("The graph shows which of your liked videos has the most views\n as well as the relative amount of views of your other liked videos");
 }
 
+/*
+	shows video topic occurrence graph and scales graph to accommodate for video title size as well as changes graph description
+*/
 void ofApp::videoTopicsEvent(ofxDatGuiButtonEvent e)
 {
 	plot.getTitle().setText("Category Spread of your Liked Videos");
@@ -210,6 +296,9 @@ void ofApp::videoTopicsEvent(ofxDatGuiButtonEvent e)
 	plot.setPoints(likedVideoTopics);
 }
 
+/*
+	shows video total likes graph and scales graph to accommodate for video title size as well as changes graph description
+*/
 void ofApp::videoLikesEvent(ofxDatGuiButtonEvent e)
 {
 	plot.getTitle().setText("Likes Comparison of your Liked Videos");
@@ -221,6 +310,10 @@ void ofApp::videoLikesEvent(ofxDatGuiButtonEvent e)
 	plot.setPoints(likedVideoLikeCount);
 }
 
+/*
+	shows subscription overall popularity graph and scales graph to accommodate for channel title size as well as changes graph description
+	popularity is determined by combining the likes and views component of each channel and dividing it by 2
+*/
 void ofApp::subscriberPopularityEvent(ofxDatGuiButtonEvent e)
 {
 	plot.getTitle().setText("Popularity Comparison of your Subscriptions");
@@ -232,6 +325,9 @@ void ofApp::subscriberPopularityEvent(ofxDatGuiButtonEvent e)
 	plot.setPoints(popularity);
 }
 
+/*
+	shows subscription total view count graph and scales graph to accommodate for channel title size as well as changes graph description
+*/
 void ofApp::subscriberViewsEvent(ofxDatGuiButtonEvent e)
 {
 	plot.getTitle().setText("View Count Comparison of your Subscriptions");
@@ -243,6 +339,9 @@ void ofApp::subscriberViewsEvent(ofxDatGuiButtonEvent e)
 	plot.setPoints(subscriptionViewCount);
 }
 
+/*
+	shows subscription subscriber count graph and scales graph to accommodate for channel title size as well as changes graph description
+*/
 void ofApp::subEvent(ofxDatGuiButtonEvent e)
 {
 	plot.getTitle().setText("Subscriber Count Comparison of your Subscriptions");
@@ -254,6 +353,9 @@ void ofApp::subEvent(ofxDatGuiButtonEvent e)
 	plot.setPoints(subscriptionSubscriberCount);
 }
 
+/*
+	shows subscriber category occurrence graph and scales graph to accommodate for channel title size as well as changes graph description
+*/
 void ofApp::subscriptionTopicEvent(ofxDatGuiButtonEvent e)
 {
 	plot.getTitle().setText("Topic Spread of your Subscriptions");
@@ -265,6 +367,9 @@ void ofApp::subscriptionTopicEvent(ofxDatGuiButtonEvent e)
 	plot.setPoints(subscriptionTopicsCount);
 }
 
+/*
+	updates components with any possible changes
+*/
 //--------------------------------------------------------------
 void ofApp::update() {
 	subscriptionsFolder->update();
@@ -274,18 +379,14 @@ void ofApp::update() {
 	graphDescription->update();
 }
 
+/*
+	draws all components
+*/
 //--------------------------------------------------------------
 void ofApp::draw() {
-	//ofSetHexColor(0x000000);
-	//ofFill();
-	//ofDrawRectangle(100, 100, 500, 500);
-	//ofSetHexColor(0xffffff);
-	//myfont->drawString("a test of\nmultiline text", 100, 100);
-	//myScrollView->draw();
 	header->draw();
 	graphDescription->draw();
 	button->draw();
-	//label->draw();
 	subscriptionsFolder->draw();
 	videosFolder->draw();
 	plot.beginDraw();
@@ -353,8 +454,17 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 
 }
 
+/*
+	normalizes a vector of ofxGPoints by finding the max and min and dividing the difference of the value and the min by the difference between the max and the min
+	 x - min
+	---------
+	 max - min
+*/
 vector<ofxGPoint> ofApp::normalize(vector<ofxGPoint> vec)
 {
+	if (vec.size() == 0) {
+		return vec;
+	}
 	float min, max;
 	min = vec[0].getY();
 	max = vec[0].getY();

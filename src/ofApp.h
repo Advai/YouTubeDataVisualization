@@ -12,19 +12,24 @@ class ofApp : public ofBaseApp {
 
 private:
 	bool loggedIn = false;
+	string video_data_path = "C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\liked_video_data.json";
+	string subscription_data_path = "C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\subscription_data.json";
+	string python_script_path = "C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\data_retriever.py";
+	string video_categories_path = "C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\video_categories.json";
+	string subscription_topics_path = "C:\\Users\\advai\\PycharmProjects\\youtubeapitest\\topic_ids.json";
 public:
-	ofxTextField* text;
-	ofxDatGuiLabel* circle;
 	ofxDatGuiLabel* header;
 	ofxDatGuiLabel* graphDescription;
+	
 	ofxDatGuiButton* button;
-	ofxDatGui* gui;
+	
 	ofTrueTypeFont *myfont;
-	ofxDatGuiScrollView* myScrollView;
+	
 	ofxDatGuiFolder* subscriptionsFolder;
 	ofxDatGuiFolder* videosFolder;
-	//json subscriber_json;
+	
 	ofxGPlot plot;
+	
 	vector<ofxGPoint> subscriptionViewCount;
 	vector<ofxGPoint> subscriptionSubscriberCount;
 	vector<ofxGPoint> popularity;
@@ -32,9 +37,14 @@ public:
 	vector<ofxGPoint> likedVideoLikeCount;
 	vector<ofxGPoint> likedVideoTopics;
 	vector<ofxGPoint> subscriptionTopicsCount;
-	// vector<ofxGPoint>* points;
 
 	void setup();
+	void setupGraphDescription();
+	void setupHeader();
+	void setupSubscriptionFolder();
+	void setupVideoFolder();
+	void setupButton();
+	void setupPlot();
 	void update();
 	void draw();
 	void keyPressed(int key);
@@ -57,4 +67,6 @@ public:
 	void videoTopicsEvent(ofxDatGuiButtonEvent e);
 	void subscriptionTopicEvent(ofxDatGuiButtonEvent e);
 	vector<ofxGPoint> normalize(vector<ofxGPoint> vec);
+	vector<ofxGPoint> getData(string path, int flag);
+	vector<ofxGPoint> getTopicIds(string topicIdsPath, string dataPath, int flag);
 };
