@@ -103,7 +103,7 @@ local.properties
 # Image file caches
 Thumbs.db
 # Folder config file
-Desktop.ini
+# Desktop.ini
 
 # Android
 .csettings
