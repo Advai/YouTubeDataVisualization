@@ -14,6 +14,17 @@
   * Wrote test python script to make calls to Youtube Data API
   * Wrote JSON schema for C++ program to read in
 
-## 12/13
+## 12/10
+ * wrote oauth script to authenticate anyone's Google account
+ 
+ ## 12/11
+  * embedded Python script into C++ program
+  * created Data Schema for data transfer between Python and C++
+ 
+ ## 12/12
+  * created various graphs using ofxGrafica
+  * documented code
+  * refactored code
+   * wrote README.md
   
    
