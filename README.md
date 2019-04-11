@@ -5,7 +5,7 @@
   4. replace the ofApp.h and ofApp.cpp that was generated with the respective files in this repository
   5. Add the python script and text files into your src folder. Inside the ofApp.h files, replace the path variable strings with the paths to these files in your project. 
   6. Set the Python path variable. Go to Project -> Options -> C/C++ -> General -> Additional Include Directories and add the path to your Python include folder and the libs folder. Do the same thing in the Project -> Options -> Linker -> General -> Additional Library Directories
-  7. Go into the client_secret.json and update it with your project specific API keys and credentials.  
+  7. Any machine attempting to access Google accounts and data needs to sign up its project and obtain their own API keys and credentials. Once you receive those, go into the client_secret.json and update it with your project specific API keys and credentials.  
   
 # Features
 Once you log into your Google account: <br>
