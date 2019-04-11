@@ -9,9 +9,9 @@
   
   # Features
   Once you log into your Google account:
-    * Compare how many views, likes, and topics your liked videos range from 
-    * Compare views, subscribers and categories of your subscriptions
-    * Works with any Google account
+    *Compare how many views, likes, and topics your liked videos range from 
+    *Compare views, subscribers and categories of your subscriptions
+    *Works with any Google account
     
   
   
